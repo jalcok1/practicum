@@ -12,6 +12,8 @@
 #include <util/delay.h>
 #include <util/twi.h>
 #include <stdbool.h>
+#include <avr/eeprom.h>
+#include <stdint.h>
 
 #include "TWI_Master.h"
 #include "LCD_Driver.h"
@@ -22,10 +24,12 @@ unsigned char Current_Read  = 0x00;
 int  Confidence_Level = 0;
 volatile bool User_Input = false;
 volatile int Input_Index = 0;
+volatile int Input_Index_2 = 0;
 volatile int Combiantion_Match_counter = 0;
 volatile bool Continue_Match_Check =true;
 volatile bool No_Press_Flag = false;
 volatile char Button_Held = 0x00;
+volatile bool New_Passcode_Entry = true;
 
 
 /*interrupt routine to handle START button press. we will call "home screen" when 
@@ -66,17 +70,18 @@ ISR(TIMER1_COMPA_vect)
 	Combiantion_Match_counter=0;
 	Input_Index=0;
 	Continue_Match_Check =true;
+	New_Passcode_Entry=false;
 }
 
 
 int main(void)
 {
     //setting PBC0-PC3 as inputs
-	DDRC &= ~((1<<DDC0)|(1<<DDC1)|(1<<DDC2)|(1<<DDC3));//all port B as inputs
+	DDRC &= ~((1<<DDC0)|(1<<DDC1)|(1<<DDC2)|(1<<DDC3));//pins 23-26 or PC0-PC3  as inputs
 	PORTC |= ((1<<PORTC0)|(1<<PORTC1)|(1<<PORTC2)|(1<<PORTC3));//enable pull-ups
 	
-	DDRD |= ((1<<DDD5)|(1<<DDD4)); // setting PD5 and PD4 as output for solenoid and reset for LCD
-	PORTD |= (1<<PORTD4); //set high for LCD reset (reset is active low)
+	DDRD |= ((1<<DDD5)|(1<<DDD4)); // setting PD5(Reset_LCD) and PD4(Solenoid) as output for solenoid and reset for LCD
+	PORTD |= (1<<PORTD5); //set high for LCD reset (reset is active low)
 	
 	DDRB |= ((1<<DDB0)|(1<<DDB1)|(1<<DDB2)); //PB0-PB2 as outputs for LCD LEDs control
 	
@@ -231,7 +236,7 @@ unsigned char Button_Press_Detected(unsigned char Button_Value)
 	int i;
 	/*step through all possible values of the encoder output 
 	and match it to a button being pressed or not*/
-	for (i=6;i>=0;i--)
+	for (i=7;i>=0;i--)
 	{
 		if (Button_Value==Buttons[i])
 		{
@@ -247,9 +252,11 @@ unsigned char Button_Press_Detected(unsigned char Button_Value)
 
 void Check_For_Match(unsigned char Button_Pressed)
 {
+	uint8_t eeprom_Memory;
+	eeprom_Memory = eeprom_read_byte(&Counter_eeprom[Input_Index]);
 	/*if the button that was pressed matches to the correct combination
 	given the index the we will increase the "correctness counter*/
-	if (Button_Pressed == Combination[Input_Index])
+	if ((Button_Pressed == Combination[Input_Index]) | (Button_Pressed ==eeprom_Memory))
 	{
 		Combiantion_Match_counter++; //increase correctness counter
 	} 
@@ -265,7 +272,7 @@ void Check_For_Match(unsigned char Button_Pressed)
 
 /*this function is called when the user has inputed a combination
 if the combination is correct then the lock will be disengaged for~2sec
-after execution of this function teh program will return to home screen
+after execution of this function the program will return to home screen
 Input:void
 Output:void*/
 void Check_Combination()
@@ -276,9 +283,18 @@ void Check_Combination()
 	{
 		LEDs(1,0,0); //green on
 		Unlock_Message();
-		PORTD |= 1<<PORTD5; // open lock
+		PORTD |= 1<<PORTD4; // open lock
 		_delay_ms(300);
-		PORTD &= ~(1<<PORTD5); //lock off
+		PORTD &= ~(1<<PORTD4); //lock off
+		_delay_ms(300);
+				
+		Current_Read=PINC; //reading pins
+		Current_Read= Current_Read & 0b00001111; //masking
+		if(Current_Read==0x00)
+		{
+			User_Defined_Passcode();
+		}
+		
 		Reset_Return_Home(); //function call
 			
 	}
@@ -287,7 +303,7 @@ void Check_Combination()
 		LEDs(0,1,0); //red on
 		Try_Again_Message(); //print to LCD
 		_delay_ms(300);
-		Reset_Return_Home();//funtion call
+		Reset_Return_Home();//function call
 	}
 }
 
@@ -328,6 +344,71 @@ void Print_User_Input(unsigned char *Button_Pressed)
 		Move_Cursor_to(2,(Input_Index*2-1)); // go back to previous input
 		Display_Single("*");//print *
 		Move_Cursor_to(2,(2*Input_Index+1)); // move forward to next space for current input
+		Display_Single(Button_Pressed); //print current input to LCD
+	}
+}
+
+void User_Defined_Passcode()
+{
+	Enter_New_Passcode_Message();
+	Move_Cursor_to(2,1);
+	New_Passcode_Entry=true;
+	Input_Index_2=0;
+	_delay_ms(100);
+	
+	
+	while (New_Passcode_Entry)
+	{
+		unsigned char Button_Pressed = 0x00;	
+		
+		Button_Pressed = PollController();
+
+		//if encoder output is 0x00 means no buttons have been pressed
+		if ((Button_Pressed != 0x00) & (Button_Held != Button_Pressed))
+		{
+			Button_Held = Button_Pressed;
+			No_Press_Flag = false;
+	
+			Print_User_Input_2(&Button_Pressed);
+			
+			eeprom_write_byte(&Counter_eeprom[Input_Index_2],Button_Pressed); //write to eeprom		
+			Input_Index_2++;
+			
+			if(Input_Index_2>=10)
+			{
+				New_Passcode_Entry=false;
+			} 
+		}
+		
+		if (No_Press_Flag)
+		{
+			Button_Held = 0x00;
+		}		
+		
+			
+	}
+	_delay_ms(30);
+	Passcode_Saved_Message();
+	_delay_ms(200);
+}
+
+/* this function prints the input from the controller to the LCD. this function is similar to 
+Print_User_Input, the difference is that this function does not print asterisks on previous 
+inputs.
+Input :pointer to the user input*
+Output: void*/
+void Print_User_Input_2(unsigned char *Button_Pressed)
+{
+	/*lets check if this is the first input.
+	this will determine where to place the asterisks*/
+	if (Input_Index_2==0)
+	{
+		Display_Single(Button_Pressed); //print to LCD
+	}
+	/*if not the first input. now we start to place asterisk on previous inputs*/
+	else
+	{
+		Move_Cursor_to(2,(2*Input_Index_2+1)); // move forward to next space for current input
 		Display_Single(Button_Pressed); //print current input to LCD
 	}
 }

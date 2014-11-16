@@ -34,6 +34,16 @@ unsigned char Message_Home[]={"Press START to Begin"};
 unsigned char Message_Unlock[]={"Open Sesame!!!"};
 unsigned char Message_Try_Again[]={"Try Again :("};
 unsigned char Message_Enter_Code[]={"Enter Code 'KONAMI'"};
+unsigned char Message_Enter_New_Passcode[]={"Enter New Passcode"};
+unsigned char Message_Passcode_Saved[]={"New Passcode Saved"};
+
+/*these array are used to sen dot the LCD character Generating RAM*/
+unsigned char Character_Bytes[4][8]={
+{0x04,0x0E,0x015,0x04,0x04,0x04,0x04,0x04},
+{0x04,0x04,0x04,0x04,0x04,0x15,0x0E,0x04},
+{0x00,0x00,0x00,0x1F,0x11,0x1F,0x00,0x00},	
+};
+	
 
 // function prototypes
 void LCD_LONG_MEM_WRITE();
@@ -44,6 +54,8 @@ void Move_Cursor_to(int row, int column);
 void Display_Single(unsigned char  *chr_msg);
 void LEDs (int green,int red,int blue);
 void Print_User_Input();
+void Print_User_Input_2();
+void Create_UP_DOWN_Chararters();
 
 
 
@@ -113,6 +125,8 @@ void  Initialize_LCD()
 	LCD_COMMANDS[10]=0x07;				// Display on or OFF
 	
 	TWI_Start_Transceiver_With_Data(LCD_COMMANDS, 9);
+	
+	Create_UP_DOWN_Chararters();
 }
 
 //set LCD to double height
@@ -140,7 +154,7 @@ void Cursor_Home()
 	LCD_SINGLE_MEM_WRITE (0x02);
 }
 
-//claer contents of LCD. this also return curson to "home"
+//clear contents of LCD. this also return cursor to "home"
 void Clear_LCD()
 {
 	LCD_SINGLE_MEM_WRITE (0x01);
@@ -197,6 +211,8 @@ void Enter_Code_Message()
 	}
 }
 
+
+
 /*this function tell the LCD where to place the Cursor
 Input: Y,X cordinates from row 1 to 2 and column 1-20
 Ouput:void */
@@ -214,20 +230,135 @@ Output: void */
 void LEDs (int green,int red,int blue)
 {
 	int LED_State[3];
-	LED_State[0]=green;
-	LED_State[1]=red;
+	LED_State[0]=red;
+	LED_State[1]=green;
 	LED_State[2]=blue;
 	int k=0;
 	for (k=0;k<=2;k++)
 	{
 		if (LED_State[k])
 		{
-			PORTB &= ~(1<<k);
+			PORTB |= (1<<k);
 		}
 		else
 		{
-			PORTB |= (1<<k);
+			PORTB &= ~(1<<k);
 		}
 	}
 }
 
+//print Enter new Passcode  to LCD
+void Enter_New_Passcode_Message()
+{
+	int j=0;
+	Clear_LCD();
+	
+	
+	for (j=0; j<sizeof(Message_Enter_New_Passcode); j++)
+	{
+		Display_Single(&Message_Enter_New_Passcode[j]);
+	}
+}
+
+//print Passcode saved  to LCD
+void Passcode_Saved_Message()
+{
+	int j=0;
+	Clear_LCD();
+	
+	
+	for (j=0; j<sizeof(Message_Passcode_Saved); j++)
+	{
+		Display_Single(&Message_Passcode_Saved[j]);
+	}
+}
+
+void Create_UP_DOWN_Chararters()
+{
+	
+	unsigned char Character_Posisiton[3]={0x01,0x02,0x03};
+	unsigned char CGRAM_Posisiton[3]={0x48,0x50,0x58};
+	int i;
+	int j;
+	
+	for (j=0;j<3;j++)
+	{
+		LCD_SINGLE_MEM_WRITE(Character_Posisiton[j]);
+		LCD_SINGLE_MEM_WRITE(FUNC_SET_TBL0);
+		_delay_ms(CMD_DELAY);
+		LCD_SINGLE_MEM_WRITE(CGRAM_Posisiton[j]);	
+		
+		for (i=0;i<8;i++)
+		{
+			Display_Single(&Character_Bytes[j][i]);
+		}
+		LCD_SINGLE_MEM_WRITE(FUNC_SET_TBL1);
+		_delay_ms(CMD_DELAY);
+	}
+	
+	
+	/*LCD_SINGLE_MEM_WRITE(0x01);
+	LCD_SINGLE_MEM_WRITE(FUNC_SET_TBL0);
+	LCD_SINGLE_MEM_WRITE(0x48);
+		
+	DATA_out = 0x04;
+	Display_Single(&DATA_out);
+	
+	DATA_out = 0x0E;
+	Display_Single(&DATA_out);
+	
+	DATA_out = 0x15;
+	Display_Single(&DATA_out);
+	
+	DATA_out = 0x04;
+	Display_Single(&DATA_out);
+	
+	DATA_out = 0x04;
+	Display_Single(&DATA_out);
+	
+	DATA_out = 0x04;
+	Display_Single(&DATA_out);
+	
+	DATA_out = 0x04;
+	Display_Single(&DATA_out);
+	
+	DATA_out = 0x04;
+	Display_Single(&DATA_out);
+	
+	
+	
+	LCD_SINGLE_MEM_WRITE(FUNC_SET_TBL1);
+	_delay_ms(CMD_DELAY);
+	
+	LCD_SINGLE_MEM_WRITE(0x02);
+	LCD_SINGLE_MEM_WRITE(FUNC_SET_TBL0);
+	LCD_SINGLE_MEM_WRITE(0x50);
+	
+	DATA_out = 0x04;
+	Display_Single(&DATA_out);
+	
+	DATA_out = 0x04;
+	Display_Single(&DATA_out);
+	
+	DATA_out = 0x04;
+	Display_Single(&DATA_out);
+	
+	DATA_out = 0x04;
+	Display_Single(&DATA_out);
+	
+	DATA_out = 0x04;
+	Display_Single(&DATA_out);
+	
+	DATA_out = 0x15;
+	Display_Single(&DATA_out);
+	
+	DATA_out = 0x0E;
+	Display_Single(&DATA_out);
+	
+	DATA_out = 0x04;
+	Display_Single(&DATA_out);
+	
+	LCD_SINGLE_MEM_WRITE(FUNC_SET_TBL1);
+	_delay_ms(CMD_DELAY);
+	*/
+}
