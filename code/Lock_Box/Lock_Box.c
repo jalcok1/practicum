@@ -1,9 +1,16 @@
 /*
- * LCD_Atmel1.c
- *
- * Created: 10/24/2014 3:29:51 PM
- *  Author: LuisDavid
- * still a alpha Version 0.2
+ECE 411 
+Fall 2014
+Lock Box project
+
+Remember the Nintendo Entertainment System (NES)? We sure do. 
+It simply is a box that locks. But thats not the cool part. 
+This box is electronically locked, and must be unlocked by using
+the old school NES controller as a user interface.
+
+visit the wiki for more information:
+https://github.com/jalcok1/practicum/wiki 
+ 
  */ 
 
 #define F_CPU 8000000UL // 1MHz internal clock speed of ATmega328
@@ -71,6 +78,8 @@ ISR(TIMER1_COMPA_vect)
 	Input_Index=0;
 	Continue_Match_Check =true;
 	New_Passcode_Entry=false;
+	
+	LEDs(1,1,1); //white back light
 }
 
 
@@ -113,7 +122,7 @@ int main(void)
 	{
 		
 		Home_Message();
-		_delay_ms(15);
+		_delay_ms(25);
 	
 		while (User_Input)
 		{
@@ -135,7 +144,8 @@ int main(void)
 				user input, and open lock*/
 			Button_Pressed = PollController();
 			
-			//if encoder output is 0x00 means no buttons have been pressed
+			/*if encoder output is 0x00 means no buttons have been pressed
+			so this this only be tru if a button is pressed and the user is not holding down a button*/
 			if ((Button_Pressed != 0x00) & (Button_Held != Button_Pressed))
 			{
 				Button_Held = Button_Pressed;
@@ -169,7 +179,10 @@ int main(void)
 				
 			}
 			
-			
+			/*this statement is used to filter out a no press. meaning 
+			that no button has been pressed. this flag is only false when 
+			the user has pressed a button. when no buttons are pressed the No_Press_Flag is 
+			set. after the flag is set we can rule out a button being held down */
 			if (No_Press_Flag)
 			{
 				Button_Held = 0x00;
@@ -290,9 +303,12 @@ void Check_Combination()
 				
 		Current_Read=PINC; //reading pins
 		Current_Read= Current_Read & 0b00001111; //masking
+		
+		/*this if statement checks if START and SELECT and pressed. if true then 
+		it will make a function call that will handle the user input of a new passcode*/
 		if(Current_Read==0x00)
 		{
-			User_Defined_Passcode();
+			User_Defined_Passcode(); //function call
 		}
 		
 		Reset_Return_Home(); //function call
@@ -348,38 +364,53 @@ void Print_User_Input(unsigned char *Button_Pressed)
 	}
 }
 
+
+/*this function is used when the user wants to program a passcode. the function will
+poll the controller and use software debounce on the user input. after a valid input is 
+registered the input will be saved into non volatile memory (eeprom)
+Input:void
+Output:void
+*/
 void User_Defined_Passcode()
 {
-	Enter_New_Passcode_Message();
-	Move_Cursor_to(2,1);
-	New_Passcode_Entry=true;
-	Input_Index_2=0;
-	_delay_ms(100);
+	Enter_New_Passcode_Message(); //print to LCD
+	Move_Cursor_to(2,1); //move cursor to second line
+	New_Passcode_Entry=true; // set flag to true to enter while statement
+	Input_Index_2=0; //index to keep track of user inputs
+	_delay_ms(100); //delay so user can release START and SELECT buttons
 	
-	
+	/*entering infinite while loop. this loop can only be broken if a timeout occurs or when
+	the user enters 10 characters for a passcode*/
 	while (New_Passcode_Entry)
 	{
-		unsigned char Button_Pressed = 0x00;	
+		unsigned char Button_Pressed = 0x00; //initialize variable 0x00 means no button pressed	
 		
-		Button_Pressed = PollController();
+		Button_Pressed = PollController(); // function call
 
-		//if encoder output is 0x00 means no buttons have been pressed
+		/*if encoder output is 0x00 means no buttons have been pressed
+		so this this only be true if a button is pressed and the user is not holding down a button*/
 		if ((Button_Pressed != 0x00) & (Button_Held != Button_Pressed))
 		{
-			Button_Held = Button_Pressed;
-			No_Press_Flag = false;
-	
+			Button_Held = Button_Pressed; //store the button that was registered to compare next iteration
+			No_Press_Flag = false; // set flag for no button press. this will help to detect a button being held down
+			
+			//functon call to print user input to LCD. 
 			Print_User_Input_2(&Button_Pressed);
 			
 			eeprom_write_byte(&Counter_eeprom[Input_Index_2],Button_Pressed); //write to eeprom		
-			Input_Index_2++;
+			Input_Index_2++; 
 			
+			//if user has entered 10 characters exit loop 
 			if(Input_Index_2>=10)
 			{
-				New_Passcode_Entry=false;
+				New_Passcode_Entry=false; //set flagg to exit loop 
 			} 
 		}
 		
+		/*this statement is used to filter out a no press. meaning 
+		that no button has been pressed. this flag is only false when 
+		the user has pressed a button. when no buttons are pressed the No_Press_Flag is 
+		set. after the flag is set we can rule out a button being held down */
 		if (No_Press_Flag)
 		{
 			Button_Held = 0x00;
@@ -387,9 +418,9 @@ void User_Defined_Passcode()
 		
 			
 	}
-	_delay_ms(30);
-	Passcode_Saved_Message();
-	_delay_ms(200);
+	_delay_ms(30); //delay for user feedback
+	Passcode_Saved_Message(); //display message
+	_delay_ms(200); // delay for user feedback
 }
 
 /* this function prints the input from the controller to the LCD. this function is similar to 

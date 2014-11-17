@@ -198,7 +198,7 @@ void Try_Again_Message()
 	}
 }
 
-//print Enter code messaeg to LCD
+//print Enter code message to LCD
 void Enter_Code_Message()
 {
 	int j=0;
@@ -252,6 +252,7 @@ void Enter_New_Passcode_Message()
 {
 	int j=0;
 	Clear_LCD();
+	Move_Cursor_to(1,2);
 	
 	
 	for (j=0; j<sizeof(Message_Enter_New_Passcode); j++)
@@ -265,7 +266,7 @@ void Passcode_Saved_Message()
 {
 	int j=0;
 	Clear_LCD();
-	
+	Move_Cursor_to(1,2);
 	
 	for (j=0; j<sizeof(Message_Passcode_Saved); j++)
 	{
@@ -273,14 +274,27 @@ void Passcode_Saved_Message()
 	}
 }
 
+/*this function is	ONLY CALLED ONCE. it is called automatically in the 
+Initialize_LCD() function. it creates the up and down arrows. 
+Inputs:void
+Outputs:void
+*/
 void Create_UP_DOWN_Chararters()
 {
-	
+	///this array holds the DDRAM address for the new characters
 	unsigned char Character_Posisiton[3]={0x01,0x02,0x03};
+	//array that holds CGRAM address for characters	
 	unsigned char CGRAM_Posisiton[3]={0x48,0x50,0x58};
-	int i;
+	int i; //counting variables
 	int j;
 	
+	/*to write a new character the DDRAm address must be set firsts. 
+	the LCD supports 8 user defined characters. ( I tried to enter 4 but
+	it will give fatal errors so I only created a character for up down and select
+	Carlos M)  after sending the DDRAM address a CGRAm address is necessary (look at 
+	LCD driver LCD for more details)*/
+	
+	/*this loop steps through all bytes that need to be sent to the LCD module*/
 	for (j=0;j<3;j++)
 	{
 		LCD_SINGLE_MEM_WRITE(Character_Posisiton[j]);
@@ -295,70 +309,4 @@ void Create_UP_DOWN_Chararters()
 		LCD_SINGLE_MEM_WRITE(FUNC_SET_TBL1);
 		_delay_ms(CMD_DELAY);
 	}
-	
-	
-	/*LCD_SINGLE_MEM_WRITE(0x01);
-	LCD_SINGLE_MEM_WRITE(FUNC_SET_TBL0);
-	LCD_SINGLE_MEM_WRITE(0x48);
-		
-	DATA_out = 0x04;
-	Display_Single(&DATA_out);
-	
-	DATA_out = 0x0E;
-	Display_Single(&DATA_out);
-	
-	DATA_out = 0x15;
-	Display_Single(&DATA_out);
-	
-	DATA_out = 0x04;
-	Display_Single(&DATA_out);
-	
-	DATA_out = 0x04;
-	Display_Single(&DATA_out);
-	
-	DATA_out = 0x04;
-	Display_Single(&DATA_out);
-	
-	DATA_out = 0x04;
-	Display_Single(&DATA_out);
-	
-	DATA_out = 0x04;
-	Display_Single(&DATA_out);
-	
-	
-	
-	LCD_SINGLE_MEM_WRITE(FUNC_SET_TBL1);
-	_delay_ms(CMD_DELAY);
-	
-	LCD_SINGLE_MEM_WRITE(0x02);
-	LCD_SINGLE_MEM_WRITE(FUNC_SET_TBL0);
-	LCD_SINGLE_MEM_WRITE(0x50);
-	
-	DATA_out = 0x04;
-	Display_Single(&DATA_out);
-	
-	DATA_out = 0x04;
-	Display_Single(&DATA_out);
-	
-	DATA_out = 0x04;
-	Display_Single(&DATA_out);
-	
-	DATA_out = 0x04;
-	Display_Single(&DATA_out);
-	
-	DATA_out = 0x04;
-	Display_Single(&DATA_out);
-	
-	DATA_out = 0x15;
-	Display_Single(&DATA_out);
-	
-	DATA_out = 0x0E;
-	Display_Single(&DATA_out);
-	
-	DATA_out = 0x04;
-	Display_Single(&DATA_out);
-	
-	LCD_SINGLE_MEM_WRITE(FUNC_SET_TBL1);
-	_delay_ms(CMD_DELAY);
-	*/
 }
