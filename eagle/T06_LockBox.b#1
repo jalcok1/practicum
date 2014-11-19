@@ -722,25 +722,25 @@ Please make sure your boards conform to these design rules.</description>
 </pass>
 </autorouter>
 <elements>
-<element name="C1" library="T06_Lockbox" package="C0805" value="330pF, 25V" x="69.088" y="44.069" smashed="yes">
+<element name="C1" library="T06_Lockbox" package="C0805" value="330pF" x="69.088" y="44.069" smashed="yes">
 <attribute name="SPICEMODEL" value="NONE" x="69.088" y="44.069" size="1.778" layer="27" display="off"/>
 <attribute name="SPICEPREFIX" value="C" x="69.088" y="44.069" size="1.778" layer="27" display="off"/>
 <attribute name="NAME" x="70.866" y="40.894" size="1.27" layer="25" rot="R90"/>
 <attribute name="VALUE" x="71.247" y="44.704" size="1.27" layer="27" rot="R270"/>
 </element>
-<element name="C2" library="T06_Lockbox" package="C0805" value="10uF, 10V" x="57.113" y="46.242" smashed="yes" rot="R270">
+<element name="C2" library="T06_Lockbox" package="C0805" value="10uF" x="57.113" y="46.242" smashed="yes" rot="R270">
 <attribute name="SPICEMODEL" value="NONE" x="57.113" y="46.242" size="1.778" layer="27" rot="R270" display="off"/>
 <attribute name="SPICEPREFIX" value="C" x="57.113" y="46.242" size="1.778" layer="27" rot="R270" display="off"/>
 <attribute name="NAME" x="59.526" y="45.226" size="1.27" layer="25" rot="R90"/>
 <attribute name="VALUE" x="57.621" y="48.655" size="1.27" layer="27" rot="R90"/>
 </element>
-<element name="C3" library="T06_Lockbox" package="C0805" value="1uF, 10V" x="33.0708" y="25.146" smashed="yes">
+<element name="C3" library="T06_Lockbox" package="C0805" value="1uF" x="33.0708" y="25.146" smashed="yes">
 <attribute name="SPICEMODEL" value="NONE" x="33.0708" y="25.146" size="1.778" layer="27" display="off"/>
 <attribute name="SPICEPREFIX" value="C" x="33.0708" y="25.146" size="1.778" layer="27" display="off"/>
 <attribute name="NAME" x="30.988" y="24.0538" size="1.27" layer="25" rot="R90"/>
 <attribute name="VALUE" x="35.306" y="26.2382" size="1.27" layer="27" rot="R270"/>
 </element>
-<element name="C6" library="T06_Lockbox" package="C0805" value="1uF, 10V" x="44.958" y="24.384" smashed="yes" rot="R90">
+<element name="C6" library="T06_Lockbox" package="C0805" value="1uF" x="44.958" y="24.384" smashed="yes" rot="R90">
 <attribute name="SPICEMODEL" value="NONE" x="44.958" y="24.384" size="1.778" layer="27" rot="R90" display="off"/>
 <attribute name="SPICEPREFIX" value="C" x="44.958" y="24.384" size="1.778" layer="27" rot="R90" display="off"/>
 <attribute name="NAME" x="42.4124" y="25.9248" size="1.27" layer="25" rot="R270"/>
@@ -826,29 +826,29 @@ Please make sure your boards conform to these design rules.</description>
 <attribute name="NAME" x="14.859" y="19.812" size="1.27" layer="25" rot="R180"/>
 <attribute name="VALUE" x="12.573" y="15.748" size="1.27" layer="27" rot="R90"/>
 </element>
-<element name="R7" library="T06_Lockbox" package="R0805" value="33" x="22.225" y="16.256" smashed="yes" rot="R90">
+<element name="R7" library="T06_Lockbox" package="R0805" value="27" x="22.225" y="16.256" smashed="yes" rot="R90">
 <attribute name="NAME" x="23.368" y="19.558" size="1.27" layer="25" rot="R180"/>
 <attribute name="VALUE" x="21.082" y="15.621" size="1.27" layer="27" rot="R90"/>
 </element>
-<element name="R8" library="T06_Lockbox" package="R0805" value="N/P" x="34.544" y="19.177" smashed="yes" rot="R90">
+<element name="R8" library="T06_Lockbox" package="R0805" value="10k" x="34.544" y="19.177" smashed="yes" rot="R90">
 <attribute name="NAME" x="35.687" y="22.479" size="1.27" layer="25" rot="R180"/>
 <attribute name="VALUE" x="35.687" y="17.018" size="1.27" layer="27" rot="R180"/>
 </element>
-<element name="R9" library="T06_Lockbox" package="R0805" value="N/P" x="37.719" y="19.177" smashed="yes" rot="R90">
+<element name="R9" library="T06_Lockbox" package="R0805" value="4.7k" x="37.719" y="19.177" smashed="yes" rot="R90">
 <attribute name="NAME" x="38.735" y="22.479" size="1.27" layer="25" rot="R180"/>
 <attribute name="VALUE" x="39.37" y="17.018" size="1.27" layer="27" rot="R180"/>
 </element>
-<element name="R10" library="T06_Lockbox" package="R0805" value="N/P" x="40.513" y="19.177" smashed="yes" rot="R90">
+<element name="R10" library="T06_Lockbox" package="R0805" value="4.7k" x="40.513" y="19.177" smashed="yes" rot="R90">
 <attribute name="NAME" x="42.545" y="22.479" size="1.27" layer="25" rot="R180"/>
 <attribute name="VALUE" x="42.926" y="17.018" size="1.27" layer="27" rot="R180"/>
 </element>
-<element name="C4" library="T06_Lockbox" package="C1206" value="10uF, 25V" x="68.58" y="48.641" smashed="yes">
+<element name="C4" library="T06_Lockbox" package="C1206" value="10uF" x="68.58" y="48.641" smashed="yes">
 <attribute name="SPICEMODEL" value="NONE" x="68.58" y="48.641" size="1.778" layer="27" display="off"/>
 <attribute name="SPICEPREFIX" value="C" x="68.58" y="48.641" size="1.778" layer="27" display="off"/>
 <attribute name="NAME" x="69.723" y="52.07" size="1.27" layer="25" rot="R270"/>
 <attribute name="VALUE" x="71.247" y="52.578" size="1.27" layer="27" font="vector" rot="R270"/>
 </element>
-<element name="C5" library="T06_Lockbox" package="C0805" value="1uF, 25V" x="69.088" y="46.355" smashed="yes">
+<element name="C5" library="T06_Lockbox" package="C0805" value="1uF" x="69.088" y="46.355" smashed="yes">
 <attribute name="SPICEMODEL" value="NONE" x="69.088" y="46.355" size="1.778" layer="27" display="off"/>
 <attribute name="SPICEPREFIX" value="C" x="69.088" y="46.355" size="1.778" layer="27" display="off"/>
 <attribute name="NAME" x="71.501" y="47.244" size="1.27" layer="25" rot="R270"/>
@@ -863,8 +863,8 @@ Please make sure your boards conform to these design rules.</description>
 <attribute name="NAME" x="56.896" y="61.087" size="1.27" layer="104" font="vector" rot="R90"/>
 <attribute name="VALUE" x="68.326" y="54.229" size="1.27" layer="27" font="vector" rot="R90"/>
 </element>
-<element name="R12" library="T06_Lockbox" package="M0805" value="33" x="47.371" y="24.384" rot="R270"/>
-<element name="C7" library="T06_Lockbox" package="C0805" value="1uF, 10V" x="36.032" y="40.146" rot="R180">
+<element name="R12" library="T06_Lockbox" package="M0805" value="" x="47.371" y="24.384" rot="R270"/>
+<element name="C7" library="T06_Lockbox" package="C0805" value="1uF" x="36.032" y="40.146" rot="R180">
 <attribute name="SPICEMODEL" value="NONE" x="36.032" y="40.146" size="1.778" layer="27" rot="R180" display="off"/>
 <attribute name="SPICEPREFIX" value="C" x="36.032" y="40.146" size="1.778" layer="27" rot="R180" display="off"/>
 </element>
