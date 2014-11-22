@@ -37,6 +37,7 @@ volatile bool Continue_Match_Check =true;
 volatile bool No_Press_Flag = false;
 volatile char Button_Held = 0x00;
 volatile bool New_Passcode_Entry = true;
+volatile bool Time_Out_Flag=false;
 
 
 /*interrupt routine to handle START button press. we will call "home screen" when 
@@ -78,6 +79,7 @@ ISR(TIMER1_COMPA_vect)
 	Input_Index=0;
 	Continue_Match_Check =true;
 	New_Passcode_Entry=false;
+	Time_Out_Flag=true;
 	
 	LEDs(1,1,1); //white back light
 }
@@ -217,7 +219,7 @@ unsigned char PollController()
 		{
 			//if the previous state equals current increase confidence level else so nothing
 			Confidence_Level++;
-			if(Confidence_Level>200) //arbitrary confidence level
+			if(Confidence_Level>500) //arbitrary confidence level
 			{
 				Button_Pressed=Button_Press_Detected(Current_Read);
 				Confidence_Level=0; //reset counter
@@ -377,7 +379,17 @@ void User_Defined_Passcode()
 	Move_Cursor_to(2,1); //move cursor to second line
 	New_Passcode_Entry=true; // set flag to true to enter while statement
 	Input_Index_2=0; //index to keep track of user inputs
+	Time_Out_Flag=false; //timeout flag
+	unsigned char Temp_Buffer[10]; //initialize temporary buffer
+	int i=0; //counting variable
+	
 	_delay_ms(100); //delay so user can release START and SELECT buttons
+
+	//lets save current eeprom passcode to a temp buffer
+	for (i=0;i<10;i++)
+	{
+		Temp_Buffer[i]=eeprom_read_byte(&Counter_eeprom[i]);
+	}
 	
 	/*entering infinite while loop. this loop can only be broken if a timeout occurs or when
 	the user enters 10 characters for a passcode*/
@@ -403,7 +415,7 @@ void User_Defined_Passcode()
 			//if user has entered 10 characters exit loop 
 			if(Input_Index_2>=10)
 			{
-				New_Passcode_Entry=false; //set flagg to exit loop 
+				New_Passcode_Entry=false; //set flag to exit loop 
 			} 
 		}
 		
@@ -415,12 +427,29 @@ void User_Defined_Passcode()
 		{
 			Button_Held = 0x00;
 		}		
-		
-			
 	}
-	_delay_ms(30); //delay for user feedback
-	Passcode_Saved_Message(); //display message
-	_delay_ms(200); // delay for user feedback
+	
+	
+// lets check if timeout occurred if so restore eeprom to old from buffer
+	if (Time_Out_Flag)
+	{
+		//restore eeprom memory from temporary buffer
+		for (i=0;i<10;i++)
+		{
+			eeprom_write_byte(&Counter_eeprom[i],Temp_Buffer[i]);
+		}	
+		
+		Time_Out_Message(); //display message
+		_delay_ms(600);
+	 }
+	 else
+	 {
+		Passcode_Saved_Message(); //display message		 
+	 }
+	
+	
+	
+	
 }
 
 /* this function prints the input from the controller to the LCD. this function is similar to 

@@ -33,9 +33,12 @@ this also includes spaces*/
 unsigned char Message_Home[]={"Press START to Begin"};
 unsigned char Message_Unlock[]={"Open Sesame!!!"};
 unsigned char Message_Try_Again[]={"Try Again :("};
-unsigned char Message_Enter_Code[]={"Enter Code 'KONAMI'"};
+unsigned char Message_Enter_Code[]={"Enter Code To Unlock"};
 unsigned char Message_Enter_New_Passcode[]={"Enter New Passcode"};
 unsigned char Message_Passcode_Saved[]={"New Passcode Saved"};
+unsigned char Message_Time_Out_1[]={"Timed Out"};
+unsigned char Message_Time_Out_2[]={"Try Again"};	
+	
 
 /*these array are used to sen dot the LCD character Generating RAM*/
 unsigned char Character_Bytes[4][8]={
@@ -56,6 +59,7 @@ void LEDs (int green,int red,int blue);
 void Print_User_Input();
 void Print_User_Input_2();
 void Create_UP_DOWN_Chararters();
+void Time_Out_Message();
 
 
 
@@ -160,6 +164,17 @@ void Clear_LCD()
 	LCD_SINGLE_MEM_WRITE (0x01);
 }
 
+/*this function tell the LCD where to place the Cursor
+Input: Y,X cordinates from row 1 to 2 and column 1-20
+Ouput:void */
+void Move_Cursor_to(int row, int column)
+{
+	LCD_SINGLE_MEM_WRITE (Cursor_Position[row-1][column-1]);
+}
+
+/*******************************************************************************
+*                         Pre-defined message Functions						   *
+*******************************************************************************/
 //print home message to LCD
 void Home_Message()
 {
@@ -203,47 +218,11 @@ void Enter_Code_Message()
 {
 	int j=0;
 	Clear_LCD();
-	
+	//Move_Cursor_to(1,5);
 	
 	for (j=0; j<sizeof(Message_Enter_Code); j++)
 	{
 		Display_Single(&Message_Enter_Code[j]);
-	}
-}
-
-
-
-/*this function tell the LCD where to place the Cursor
-Input: Y,X cordinates from row 1 to 2 and column 1-20
-Ouput:void */
-void Move_Cursor_to(int row, int column)
-{
-	LCD_SINGLE_MEM_WRITE (Cursor_Position[row-1][column-1]);
-}
-
-/*this function handles the LCD LEDs 
-Inputs : integer 1 for on 0 for off
-Output: void */
-/********************************************************
-	NEED TO CHANGE POLARITY WHEN WE PLACED ON PCB
-*******************************************************/
-void LEDs (int green,int red,int blue)
-{
-	int LED_State[3];
-	LED_State[0]=red;
-	LED_State[1]=green;
-	LED_State[2]=blue;
-	int k=0;
-	for (k=0;k<=2;k++)
-	{
-		if (LED_State[k])
-		{
-			PORTB |= (1<<k);
-		}
-		else
-		{
-			PORTB &= ~(1<<k);
-		}
 	}
 }
 
@@ -265,14 +244,70 @@ void Enter_New_Passcode_Message()
 void Passcode_Saved_Message()
 {
 	int j=0;
-	Clear_LCD();
+	//Clear_LCD();
 	Move_Cursor_to(1,2);
 	
 	for (j=0; j<sizeof(Message_Passcode_Saved); j++)
 	{
 		Display_Single(&Message_Passcode_Saved[j]);
 	}
+	LEDs(0,0,1);
+	_delay_ms(200);
+	LEDs(0,1,0);
+	_delay_ms(200);
+	LEDs(1,0,0);
+	_delay_ms(200);
+	
 }
+
+//print Time out  to LCD
+void Time_Out_Message()
+{
+	int j=0;
+	Clear_LCD();
+	Move_Cursor_to(1,6);
+	
+	for (j=0; j<sizeof(Message_Time_Out_1); j++)
+	{
+		Display_Single(&Message_Time_Out_1[j]);
+	}
+	
+	Move_Cursor_to(2,6);
+	for (j=0; j<sizeof(Message_Time_Out_2); j++)
+	{
+		Display_Single(&Message_Time_Out_2[j]);
+	}
+	
+}
+
+
+/*******************************************************************************
+*                         Miscellaneous Functions							   *
+*******************************************************************************/
+
+/*this function handles the LCD LEDs 
+Inputs : integer 1 for on 0 for off
+Output: void */
+void LEDs (int green,int red,int blue)
+{
+	int LED_State[3];
+	LED_State[0]=red;
+	LED_State[1]=green;
+	LED_State[2]=blue;
+	int k=0;
+	for (k=0;k<=2;k++)
+	{
+		if (LED_State[k])
+		{
+			PORTB |= (1<<k);
+		}
+		else
+		{
+			PORTB &= ~(1<<k);
+		}
+	}
+}
+
 
 /*this function is	ONLY CALLED ONCE. it is called automatically in the 
 Initialize_LCD() function. it creates the up and down arrows. 
