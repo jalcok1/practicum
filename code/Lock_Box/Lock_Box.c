@@ -117,14 +117,14 @@ int main(void)
 	
 	 
 	Initialize_LCD();
-	
+	Home_Message();
 	
 	//main program loop
 	while(1)
 	{
+		/*in this infinite loop the MCU is waiting for a interrupt. the interrupt is 
+		 triggered when the user presses the START button.*/
 		
-		Home_Message();
-		_delay_ms(25);
 	
 		while (User_Input)
 		{
@@ -331,6 +331,7 @@ void Check_Combination()
 void Reset_Return_Home()
 {
 	LEDs(1,1,1); //white on
+	Home_Message();
 	//reset all variables
 	User_Input=false;
 	Combiantion_Match_counter=0;
